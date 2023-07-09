@@ -66,15 +66,6 @@ object Lesson01_IF_WHILE_FOR {
       println(i)
     }
 
-
-
-
-
-
-
-
-
-
   }
 
 }

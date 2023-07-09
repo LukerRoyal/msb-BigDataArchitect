@@ -28,8 +28,42 @@
 
 ​		关于LSM Tree，对于最简单的二层LSM Tree而言，内存中的数据和磁盘你中的数据merge操作，如下图
 
-![树合并](https://github.com/msbbigdata/hbase/blob/master/image/树合并.png)
+![树合并](../image/树合并.png)
 
 ​		lsm tree，理论上，可以是内存中树的一部分和磁盘中第一层树做merge，对于磁盘中的树直接做update操作有可能会破坏物理block的连续性，但是实际应用中，一般lsm有多层，当磁盘中的小树合并成一个大树的时候，可以重新排好顺序，使得block连续，优化读性能。
 
 ​		hbase在实现中，是把整个内存在一定阈值后，flush到disk中，形成一个file，这个file的存储也就是一个小的B+树，因为hbase一般是部署在hdfs上，hdfs不支持对文件的update操作，所以hbase这么整体内存flush，而不是和磁盘中的小树merge update，这个设计也就能讲通了。内存flush到磁盘上的小树，定期也会合并成一个大树。整体上hbase就是用了lsm tree的思路。
+
+
+
+<img src="assets/06%20HBase%20LSM%E6%A0%91%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/media/image-20230707090442868.png" alt="image-20230707090442868" style="zoom: 50%;" />
+
+<img src="assets/06%20HBase%20LSM%E6%A0%91%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/media/image-20230707090544701.png" alt="image-20230707090544701" style="zoom:50%;" />
+
+<img src="assets/06%20HBase%20LSM%E6%A0%91%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/media/image-20230707090605123.png" alt="image-20230707090605123" style="zoom:50%;" />
+
+<img src="assets/06%20HBase%20LSM%E6%A0%91%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/media/image-20230707090635783.png" alt="image-20230707090635783" style="zoom:50%;" />
+
+<img src="assets/06%20HBase%20LSM%E6%A0%91%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/media/image-20230707090749800.png" alt="image-20230707090749800" style="zoom:50%;" />
+
+<img src="assets/06%20HBase%20LSM%E6%A0%91%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/media/image-20230707090822214.png" alt="image-20230707090822214" style="zoom:50%;" />
+
+<img src="assets/06%20HBase%20LSM%E6%A0%91%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/media/image-20230707090912177.png" alt="image-20230707090912177" style="zoom:50%;" />
+
+<img src="assets/06%20HBase%20LSM%E6%A0%91%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/media/image-20230707090955075.png" alt="image-20230707090955075" style="zoom:50%;" />
+
+<img src="assets/06%20HBase%20LSM%E6%A0%91%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/media/image-20230707091035753.png" alt="image-20230707091035753" style="zoom:50%;" />
+
+<img src="assets/06%20HBase%20LSM%E6%A0%91%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/media/image-20230707091107055.png" alt="image-20230707091107055" style="zoom:50%;" />
+
+<img src="assets/06%20HBase%20LSM%E6%A0%91%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/media/image-20230707091131922.png" alt="image-20230707091131922" style="zoom:50%;" />
+
+<img src="assets/06%20HBase%20LSM%E6%A0%91%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/media/image-20230707091150764.png" alt="image-20230707091150764" style="zoom:50%;" />
+
+<img src="assets/06%20HBase%20LSM%E6%A0%91%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/media/image-20230707091221626.png" alt="image-20230707091221626" style="zoom:50%;" />
+
+<img src="assets/06%20HBase%20LSM%E6%A0%91%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/media/image-20230707091235756.png" alt="image-20230707091235756" style="zoom:50%;" />
+
+<img src="assets/06%20HBase%20LSM%E6%A0%91%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/media/image-20230707091304630.png" alt="image-20230707091304630" style="zoom:50%;" />
+
+<img src="assets/06%20HBase%20LSM%E6%A0%91%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/media/image-20230707091531829.png" alt="image-20230707091531829" style="zoom: 67%;" />

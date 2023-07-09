@@ -1,0 +1,24 @@
+
+\	java:S112¥"FDefine and throw a dedicated exception instead of using a generic one.(Úö·ð
+a	java:S112´"FDefine and throw a dedicated exception instead of using a generic one.(Ò‚Òéüÿÿÿÿ
+n	java:S127‹"XRefactor the code in order to not assign to this loop counter from within the loop body.(¸Ï¼ó
+K
+java:S1066Š"/Merge this if statement with the enclosing one.(˜ÝÍÉüÿÿÿÿ
+V	java:S107a"<Method has 8 parameters, which is greater than 7 authorized.(½‡Îøÿÿÿÿ
+Q	java:S107r"<Method has 9 parameters, which is greater than 7 authorized.(”¼Üâ
+R	java:S125"<This block of commented-out lines of code should be removed.(‡ÆÜÒ
+T
+java:S1117§"8Rename "conf" which hides the field declared at line 37.(™ñÎèúÿÿÿÿ
+A
+java:S1181±"%Catch Exception instead of Throwable.(‡˜ÚÚøÿÿÿÿ
+z
+java:S2142±"^Either re-interrupt this method or rethrow the "InterruptedException" that can be caught here.(‡˜ÚÚøÿÿÿÿ
+W	java:S125Ê"<This block of commented-out lines of code should be removed.(†…Ëýÿÿÿÿ
+A
+java:S1181ê"%Catch Exception instead of Throwable.(‡˜ÚÚøÿÿÿÿ
+T
+java:S1117 "8Rename "conf" which hides the field declared at line 37.(—êñŒùÿÿÿÿ
+O
+java:S1874¨"3Remove this use of "setStartRow"; it is deprecated.(ßáÞùûÿÿÿÿ
+N
+java:S1874©"2Remove this use of "setStopRow"; it is deprecated.(ª«Çƒúÿÿÿÿ

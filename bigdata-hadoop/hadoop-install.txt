@@ -566,7 +566,11 @@ hdfs是一个文件系统
 			</property>
 
 			分发给node02~04
-		5)god  :  start-dfs.sh
+                scp hdfs-site.xml node02：`pwd`
+                scp hdfs-site.xml node03：`pwd`
+                scp hdfs-site.xml node04：`pwd`
+		5)node01
+		    god  :  start-dfs.sh
 
 ----------用户权限验证实操：
 	node01:
@@ -622,7 +626,117 @@ windows idea eclips  叫什么：  集成开发环境  ide 你不需要做太多
 
 
 ===================================================================
+第八课：
 
+学习方法。。。
+hdfs:
+    存储模型
+        切块，散列 ->分治 目的：分布式计算
+    实现：一＞框架
+        角色 NN, DN
+    特长/特点-＞架构师：【技术选型】
+        读写流程就很重要
+
+mapreduce：批量计算  流式计算
+    计算模型
+        2阶段：map和reduce是一种阻寒关系
+        map阶段
+            单系记录加工和处理
+        reduc阶段
+            按组，多条记录加工处理
+    实现：-＞框架
+        计算问数据移动：
+            hdfs类露数据的位置
+            1）资源管理
+            2）任务调度
+        角色：
+            JobTracker
+                1，资源管理
+                2，任务调度
+            Taskrracker
+                任务管理
+                资源汇报
+            【Cli ？】
+                1，会根据每次的计算数据，咨询NN元数据 （b1ock）=》 算：split 得到一个切片的【清单】
+                map的数最就有了
+                split是逻辑的，block是物理的，block身上有(offset, locations), split和block 是有映射关系
+                    结果：split包含偏移量，以及split对应的map任务应该移动到哪些节点 (locations)
+                    split 01 A 0 500 n1 n2 n5
+                    可以支持计算向数据移动了～！！！
+                2，生成计算程序术来运行时的相关【配置的文件】：。。。xml
+                3，未来的移动应该相对可靠
+                    cli会将 jar，split清单，配置xml 上传到hdfs的目录中
+                4， cli会调用JobTracker，通知要启动一个计算程序了，并且告知文件都放在了hdfs的哪些地方
+
+                JobTracker收到启动程序之后：
+                    1，从hdfs中取回 【split清单】
+                    2，根据自己收到的TaskTracker汇报的资源，最终确定每一个split对应的map应该去到哪一个节点，【确定清单】
+                    3，未来，TaskTracker再心跳的时候会取回分配给白己的任务信息~！
+
+                TaskTracker
+                1，在心跳取回任务后
+                2、从hdfs中下我jar,xml。。到本机
+                3、最终启动任务描述中的MapTask/ReduceTask（最终，代码在某一个节点被启动，是通过，cli上传，TaskTracker下载：
+                    ：计算问数据移动的实现~！）
+
+                问题： (不用担心，1.X之后就已经被淘汰了)
+                    JobTracker 3个问题：
+                        1，单点故障
+                        2，压力过大
+                        3，集成了【资源管理和任务调度】，两者楊合
+                            弊端：未来新的计算框架不能复用资源管理
+                                1，重复造轮子
+                                2，因为各点实现资源管理，但是他们部署在同一批硬件上，因为隔离，所以不能感知对方的使用
+                                    so：资源争抢～
+
+                hadoop2.x  出现了一个yarn
+                    模型：
+                        container容器 不是docker
+                            虚的
+                                对象：属性：NM, cpu. mem. io量
+                            物理的
+                                JVM ->操作系统进程
+                                1，Node Manager会有线桯监控container资源情况，超额，Node Manager 直接Kill掉
+                                2，cgroup内核级技术：在启动jvm进程，由kernel约束死
+                                后续*整合docker
+                    实现：架构/框架
+                        ResourceManager：
+                            负责整休资源的管理
+                        NodeManager 从
+                            向ResourceManager汇报心跳，提交白己的资源情況
+
+                    MR运行 MapReduce on yarn
+                        1，MR-cli （切片清单/配置/jar/上传到HDFS）
+                            访问ResourceManager申请AppMaster
+                        2，ResourceManager选择一台不社的节点通知NodeManager启动一个container，在里而反射一个MRAppMaster
+                        3，启动MRAppMaster，从hdfs下载切片清单，问RM中请资源
+                        4，由RM根据自己掌握的资源情况得到一个确定清单，通知NodeManager来启动container
+                        5, container启动后会反向注册到己经启动的MRAppMaster进程
+                        6，MRAppMaster （曾经的Job Tracker阉割版不带资源管理）最终将任务Task发送给container（消息）
+                        7, container会反射相应的Task类为对象，调用方法执行，其结果就是我们的业务逻辑代码的执行
+                        8，计算框架都有Task失败重试的机制
+
+                    结论：
+                        问题：
+                            1、单点故障（曾经是全局的，Job Tracker挂了，整个计算层没有了调度，
+                                yarn：何一个APP由一个白己的AppMaster调度！（计算程序级别）
+                                yarn支持AppMaster失败重试~！
+                            2，压力过大
+                                yarn中每个计算程序自有appMaster，每个Appmaster只负责自己计算程序的任务调度，轻量了
+                                AppMasters是在不同的节点中启动的，默认有了负载的光环
+                            两者糂合
+                            3，集成了【资源管理和任务调度】，两者耦合
+                                因为yarn只是资源管理，不负责具体的任务调度
+                                是公立的，只要计算框架继承yarn的AppMaster，大家都可以使用一个统一视图的资源层~！！！
+
+                    总结感悟：
+                        从1.x到2.x
+                            Job Tracker是MR的常服务。。。
+                        2.x之后没有了这些服务
+                            相对的：MR的cli，【调度】，任务，这些都是临时服务了。。
+
+===================================================================
+第九课：yarn搭建
 
 1，最终去开发MR计算程序
 	*,HDFS和YARN  是俩概念  
@@ -635,14 +749,14 @@ windows idea eclips  叫什么：  集成开发环境  ide 你不需要做太多
 		NM
 	搭建：
 			   NN	NN	JN	ZKFC	ZK	DN	RM	NM
-		node01	    *		*	*
-		node02		*	*	*	*	 *		*
-		node03			*		*	 *	 *	*
-		node04					*	 *	 *	*
+		node01	    *	*	 *
+		node02		*	*	 *	    *	 *		*
+		node03			*		    *	 *	 *	*
+		node04					    *	 *	 *	*
 	
-	hadoop	1.x		2.x			3.x
-	hdfs:	no ha		ha(向前兼容，没有过多的改NN，二是通过新增了角色 zkfc)
-	yarn	no yarn		yarn  （不是新增角色，二是直接在RM进程中增加了HA的模块）
+	hadoop	1.x		    2.x			3.x
+	hdfs:	no ha		ha(向前兼容，没有过多的改NN，二是通过新增了角色 zkfc-它只负责name node的选主和协调)
+	yarn	no yarn		yarn  （不是新增角色，而是直接在Resource Manager进程中增加了HA的模块）
 
 
 -----通过官网：
@@ -697,6 +811,9 @@ windows idea eclips  叫什么：  集成开发环境  ide 你不需要做太多
 			scp mapred-site.xml yarn-site.xml    node03:`pwd`
 			scp mapred-site.xml yarn-site.xml    node04:`pwd`
 			vi slaves  //可以不用管，搭建hdfs时候已经改过了。。。
+			    node02
+                node03
+                node04
 			start-yarn.sh
 		node03~04:
 			yarn-daemon.sh start resourcemanager
@@ -711,8 +828,8 @@ windows idea eclips  叫什么：  集成开发环境  ide 你不需要做太多
 		cd  $HADOOP_HOME
 		cd share/hadoop/mapreduce
 		hadoop jar  hadoop-mapreduce-examples-2.6.5.jar   wordcount   /data/wc/input   /data/wc/output
-			1)webui:
-			2)cli:
+			1)webui: node04:8088
+			2)cli: 命令行提示
 		hdfs dfs -ls /data/wc/output
 			-rw-r--r--   2 root supergroup          0 2019-06-22 11:37 /data/wc/output/_SUCCESS  //标志成功的文件
 			-rw-r--r--   2 root supergroup     788922 2019-06-22 11:37 /data/wc/output/part-r-00000  //数据文件
@@ -723,18 +840,13 @@ windows idea eclips  叫什么：  集成开发环境  ide 你不需要做太多
 		hdfs dfs -get  /data/wc/output/part-r-00000  ./
 	抛出一个问题：
 		data.txt 上传会切割成2个block 计算完，发现数据是对的~！~？后边注意听源码分析~！~~
-		
-
-
-
-
-
-
 
 
 
 =====================================================================
-MR  提交方式
+第十课：
+
+MR  程序的提交方式
 源码
 
 提交方式：
@@ -796,7 +908,11 @@ MR  提交方式
 				2，offset
 				3，length
 				4，hosts    //支撑的计算向数据移动
-	
+
+
+=====================================================================
+第十一课：
+
 	MapTask
 		input ->  map  -> output
 		input:(split+format)  通用的知识，未来的spark底层也是
@@ -814,8 +930,8 @@ MR  提交方式
 							getCurrentKey():
 							getCurrentValue():
 
-
-
+=====================================================================
+//第十二课：
 
 		output：
 			NewOutputCollector
@@ -904,8 +1020,8 @@ MR  提交方式
 						什么叫做分组比较器：返回值：布尔值，false/true
 						排序比较器可不可以做分组比较器：可以的
 
-					mapTask				reduceTask
-									1，取用户自定义的分组比较器
+					mapTask				    reduceTask
+									        1，取用户自定义的分组比较器
 					1，用户定义的排序比较器		2，用户定义的排序比较器
 					2，取key自身的排序比较器	3，取key自身的排序比较器
 					组合方式：
@@ -954,7 +1070,7 @@ MR  提交方式
 				getValues()
 					return iterable;
 
-			**：
+			用普通话描述它**：
 				reduceTask拉取回的数据被包装成一个迭代器
 				reduce方法被调用的时候，并没有把一组数据真的加载到内存
 					而是传递一个迭代器-values
@@ -968,24 +1084,8 @@ MR  提交方式
 						且：之前不是说了框架是排序的
 							所以真假迭代器他们只需要协作，一次I/O就可以线性处理完每一组数据~！
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                map阶段做了快速排序
+                reduce阶段做了归并排序
 
 
 
@@ -997,38 +1097,6 @@ MR  提交方式
 费曼学习法。。。
 
 ========
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

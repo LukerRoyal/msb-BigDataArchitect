@@ -2,11 +2,10 @@ package com.msb.bigdata.scala
 
 import java.util
 
+//隐式转换
 object Lesson08_implicit {
 
-
   def main(args: Array[String]): Unit = {
-
 
     val listLinked = new util.LinkedList[Int]()
     listLinked.add(1)
@@ -19,14 +18,11 @@ object Lesson08_implicit {
 
 //    list.foreach(println)   //3个东西：  list数据集  foreach 遍历行为  println 处理函数
 
-
 //    def foreach[T](list:util.LinkedList[T], f:(T)=>Unit): Unit ={
 //      val iter: util.Iterator[T] = list.iterator()
 //      while(iter.hasNext) f(iter.next())
 //    }
-
 //    foreach(list,println)
-
 
 //    val xx = new XXX(list)
 //    xx.foreach(println)

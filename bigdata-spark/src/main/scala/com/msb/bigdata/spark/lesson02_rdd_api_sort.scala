@@ -47,15 +47,8 @@ object lesson02_rdd_api_sort {
     val uv: Array[(String, Int)] = uvSorted.take(5)
     uv.foreach(println)
 
-
-
-
     while(true){
 
     }
-
-
-
   }
-
 }

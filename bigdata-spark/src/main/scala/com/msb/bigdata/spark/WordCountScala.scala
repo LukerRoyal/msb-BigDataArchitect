@@ -5,7 +5,6 @@ import org.apache.spark.{SparkConf, SparkContext}
 
 object WordCountScala {
 
-
   def main(args: Array[String]): Unit = {
 
     val conf = new SparkConf()
@@ -38,16 +37,9 @@ object WordCountScala {
     val fanzhuan: RDD[(Int, Int)] = res.map((x)=>{  (x._2,1)  })
     val resOver: RDD[(Int, Int)] = fanzhuan.reduceByKey(_+_)
 
-
     resOver.foreach(println)
     res.foreach(println)
 
-
-
-
     Thread.sleep(Long.MaxValue)
-
-
   }
-
 }

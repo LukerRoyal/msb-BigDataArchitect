@@ -1,0 +1,19 @@
+
+\	java:S112‡"FDefine and throw a dedicated exception instead of using a generic one.(‚´ïŠ
+\	java:S112–"FDefine and throw a dedicated exception instead of using a generic one.(¾–›À
+U
+java:S1161!":Add the "@Override" annotation above this method signature(úàûÿÿÿÿ
+7
+java:S1116#"Remove this empty statement.(ôŸìúÿÿÿÿ
+H
+java:S4925("-Remove this "Class.forName()", it is useless.(İˆùÿÿÿÿ
+@
+java:S1181O"%Catch Exception instead of Throwable.(‡˜ÚÚøÿÿÿÿ
+K
+java:S6437d"6Revoke and change this password, as it is compromised.(‡„Ï
+d
+java:S3252ş"HUse static access with "java.sql.Statement" for "RETURN_GENERATED_KEYS".(íµò×úÿÿÿÿ
+A
+java:S1181Š"%Catch Exception instead of Throwable.(‡˜ÚÚøÿÿÿÿ
+A
+java:S1181‘"%Catch Exception instead of Throwable.(‡˜ÚÚøÿÿÿÿ

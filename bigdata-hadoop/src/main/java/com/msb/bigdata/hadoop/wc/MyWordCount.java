@@ -38,10 +38,6 @@ public class MyWordCount {
 //        job.setInputFormatClass(ooxx.class);
 
 
-
-
-
-
         job.setJar("C:\\Users\\admin\\IdeaProjects\\msbhadoop\\target\\hadoop-hdfs-1.0-0.1.jar");
         //必须必须写的
         job.setJarByClass(MyWordCount.class);

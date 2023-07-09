@@ -1,6 +1,6 @@
 # HBase优化设计
 
-### 1、表的设计
+## 表的设计
 
 ##### 1、Pre-Creating Regions
 
@@ -112,7 +112,7 @@ admin.createTable(table, splits);
 
 ​				hbase.hstore.compaction.max.size 表示文件大小大于该值的store file 一定不会被添加到minor compaction
 
-​				hbase.hstore.compaction.ratio ：将 StoreFile 按照文件年龄排序，minor compaction 总是从 older store file 开始选择，如果该文件的 size 小于后面 hbase.hstore.compaction.max 个 store file size 之和乘以 ratio 的值，那么该 store file 将加入到 minor compaction 中。如果满足 minor compaction 条件的文件数量大于 hbase.hstore.compaction.min，才会启动。
+​				**hbase.hstore.compaction.ratio** ：将 StoreFile 按照文件年龄排序，minor compaction 总是从 older store file 开始选择，如果该文件的 size 小于后面 hbase.hstore.compaction.max 个 store file size 之和乘以 ratio 的值，那么该 store file 将加入到 minor compaction 中。如果满足 minor compaction 条件的文件数量大于 hbase.hstore.compaction.min，才会启动。
 
 ​		2、major compaction 的功能是将所有的store file合并成一个，触发major compaction的可能条件有：
 
@@ -128,9 +128,9 @@ admin.createTable(table, splits);
 
 ​					hbase.hregion.majorcompaction.jetter参数的作用是：对参数hbase.hregion.majorcompaction 规定的值起到浮动的作用，假如两个参数都为默认值24和0,2，那么major compact最终使用的数值为：19.2~28.8 这个范围。
 
-### 2、hbase写表操作		
+## hbase写表操作
 
-##### 1、是否需要写WAL？WAL是否需要同步写入？
+### 是否需要写WAL？WAL是否需要同步写入？
 
 优化原理：
 
@@ -140,7 +140,7 @@ admin.createTable(table, splits);
 
 ​		根据业务关注点在WAL机制与写入吞吐量之间做出选择  
 
-##### 2、Put是否可以同步批量提交？
+### Put是否可以同步批量提交？
 
 优化原理：
 
@@ -188,7 +188,7 @@ admin.createTable(table, splits);
 
 ​		KeyValue大小对写入性能的影响巨大，一旦遇到写入性能比较差的情况，需要考虑是否由于写入KeyValue数据太大导致。KeyValue大小对写入性能影响曲线图如下：
 
-![对比](https://github.com/msbbigdata/hbase/blob/master/image/对比.png)
+![对比](../image/对比.png?raw=true)
 
 ​		图中横坐标是写入的一行数据（每行数据10列）大小，左纵坐标是写入吞吐量，右坐标是写入平均延迟（ms）。可以看出随着单行数据大小不断变大，写入吞吐量急剧下降，写入延迟在100K之后急剧增大。
 
@@ -200,7 +200,7 @@ admin.createTable(table, splits);
 
 ​		该特性也是对WAL进行改造，当前WAL设计为一个RegionServer上所有Region共享一个WAL，可以想象在写入吞吐量较高的时候必然存在资源竞争，降低整体性能。针对这个问题，社区小伙伴（阿里巴巴大神）提出Multiple WALs机制，管理员可以为每个Namespace下的所有表设置一个共享WAL，通过这种方式，写性能大约可以提升20%～40%左右。具体可以参考官方jira：https://issues.apache.org/jira/browse/HBASE-14457
 
-### 3、hbase读表优化
+## hbase读表优化
 
 ##### 1. scan缓存是否设置合理？
 
@@ -313,3 +313,8 @@ admin.createTable(table, splits);
 优化建议：
 
 ​		避免Region无故迁移，比如关闭自动balance、RS宕机及时拉起并迁回飘走的Region等；在业务低峰期执行major_compact提升数据本地率
+
+
+
+
+

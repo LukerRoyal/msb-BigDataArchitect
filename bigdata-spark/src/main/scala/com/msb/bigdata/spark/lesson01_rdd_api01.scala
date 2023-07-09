@@ -15,8 +15,6 @@ object lesson01_rdd_api01 {
   //cogroup
   //combinerByKey
 
-
-
   def main(args: Array[String]): Unit = {
 
     val conf: SparkConf = new SparkConf().setMaster("local").setAppName("test01")
@@ -24,11 +22,7 @@ object lesson01_rdd_api01 {
 
     sc.setLogLevel("ERROR")
 
-
-
-
     val dataRDD: RDD[Int] = sc.parallelize( List(1,2,3,4,5,4,3,2,1) )
-
 
 //    dataRDD.map()
 //    dataRDD.flatMap()
@@ -56,10 +50,6 @@ object lesson01_rdd_api01 {
     //面向数据集： 元素 -->  单元素，K,V元素  --> 机构化、非结构化
 
 
-
-
-
-
     //spark很人性，面向数据集提供了不同的方法的封装，且，方法已经经过经验，常识，推算出自己的实现方式
     //人不需要干预（会有一个算子）
 //    val rdd1: RDD[Int] = sc.parallelize( List( 1,2,3,4,5)  )
@@ -81,10 +71,6 @@ object lesson01_rdd_api01 {
 //    cartesian.foreach(println)
 
 
-
-
-
-
 //    println(rdd1.partitions.size)
 //    println(rdd2.partitions.size)
 //    val unitRDD: RDD[Int] = rdd1.union(rdd2)
@@ -96,7 +82,6 @@ object lesson01_rdd_api01 {
 //
 //
 //    unitRDD.foreach(println)
-
 
     val kv1: RDD[(String, Int)] = sc.parallelize(List(
       ("zhangsan", 11),
@@ -133,24 +118,6 @@ object lesson01_rdd_api01 {
     while(true){
 
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   }
 

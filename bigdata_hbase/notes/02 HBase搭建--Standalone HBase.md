@@ -66,3 +66,6 @@ JAVA_HOME=/usr/java/jdk1.8.0_181-amd64
 ```
 
 8、在任意目录下运行hbase shell的命令，进入hbase的命令行进行相关操作。
+
+
+

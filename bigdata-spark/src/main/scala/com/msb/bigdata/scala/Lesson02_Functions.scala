@@ -37,8 +37,8 @@ object Lesson02_Functions {
       new util.LinkedList[String]()
     }
 
-    //参数：必须给出类型，是val
-    //class 构造，是var，val
+    //参数：def的函数，必须给出类型，是val
+    //class 构造的，可以是var，val
     def fun03(a: Int): Unit = {
       println(a)
     }

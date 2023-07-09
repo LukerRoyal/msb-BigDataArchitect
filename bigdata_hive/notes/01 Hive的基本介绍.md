@@ -74,6 +74,8 @@ The Apache Hive ™ data warehouse software facilitates reading, writing, and ma
 
 ![OLAP](https://github.com/msbbigdata/hive/blob/master/images/OLAP.png)
 
+![OLAP.png](assets/01%20Hive%E7%9A%84%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%BB%8D/media/OLAP.png)
+
 ​			钻取：在维的不同层次间的变化，从上层降到下一层，或者说将汇总数据拆分到更细节的数据，比如通过						对2019年第二季度的总销售数据进行钻取来查看2019年4,5,6,每个月的消费数据，再例如可以钻取						浙江省来查看杭州市、温州市、宁波市......这些城市的销售数据
 ​			上卷：钻取的逆操作，即从细粒度数据向更高汇总层的聚合，如将江苏省、上海市、浙江省的销售数据进						行汇总来查看江浙沪地区的销售数据
 ​			切片：选择维中特定的值进行分析，比如只选择电子产品的销售数据或者2019年第二季度的数据

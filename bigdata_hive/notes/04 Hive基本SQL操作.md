@@ -365,11 +365,17 @@
 
 ![delete](https://github.com/msbbigdata/hive/blob/master/images/delete.png)
 
+![delete.png](assets/04%20Hive%E5%9F%BA%E6%9C%ACSQL%E6%93%8D%E4%BD%9C/media/delete.png)
+
 ![update](https://github.com/msbbigdata/hive/blob/master/images/update.png)
+
+![update.png](assets/04%20Hive%E5%9F%BA%E6%9C%ACSQL%E6%93%8D%E4%BD%9C/media/update.png)
 
 ​		在官网中我们明确看到hive中是支持Update和Delete操作的，但是实际上，是需要事务的支持的，Hive对于事务的支持有很多的限制，如下图所示：
 
 ![transaction_limitations](https://github.com/msbbigdata/hive/blob/master/images/transaction_limitations.png)
+
+![transaction_limitations.png](assets/04%20Hive%E5%9F%BA%E6%9C%ACSQL%E6%93%8D%E4%BD%9C/media/transaction_limitations.png)
 
 因此，在使用hive的过程中，我们一般不会产生删除和更新的操作，如果你需要测试的话，参考下面如下配置：
 

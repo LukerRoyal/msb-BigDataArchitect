@@ -2,7 +2,7 @@
 
 ##### 1、hive授权模型介绍
 
-![]([https://github.com/msbbigdata/hive/blob/master/images/hive%E6%8E%88%E6%9D%83%E6%A8%A1%E5%9E%8B.png])
+![](../images/hive授权模型.png)
 
 （1）Storage Based Authorization in the Metastore Server
 		基于存储的授权 - 可以对Metastore中的元数据进行保护，但是没有提供更加细粒度的访问控制（例如：列级别、行级别）。

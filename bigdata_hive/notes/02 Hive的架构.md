@@ -4,6 +4,8 @@
 
 ![Hive架构图](https://github.com/msbbigdata/hive/blob/master/images/hive架构图.png)
 
+<img src="assets/02%20Hive%E7%9A%84%E6%9E%B6%E6%9E%84/media/hive%E6%9E%B6%E6%9E%84%E5%9B%BE.png" alt="hive架构图.png" style="zoom: 50%;" />
+
 ### 2、Hive的服务（角色）
 
 ##### 	1、用户访问接口
@@ -31,3 +33,5 @@
 ### 3、Hive的访问流程图
 
 ![Hive访问流程图](https://github.com/msbbigdata/hive/blob/master/images/访问流程图.png)
+
+<img src="assets/02%20Hive%E7%9A%84%E6%9E%B6%E6%9E%84/media/%E8%AE%BF%E9%97%AE%E6%B5%81%E7%A8%8B%E5%9B%BE.png" alt="访问流程图.png" style="zoom:50%;" />

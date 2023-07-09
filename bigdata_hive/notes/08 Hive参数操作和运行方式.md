@@ -90,4 +90,11 @@
 
 ​	5、Hive GUI方式
 
-​		![]([https://github.com/msbbigdata/hive/blob/master/images/hive%20hwi.png])
+​		![](../images/hive hwi.png)
+
+
+
+
+
+
+

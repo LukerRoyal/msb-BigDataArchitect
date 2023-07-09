@@ -31,21 +31,16 @@ public class MyTopN {
         job.addCacheFile(new Path("/data/topn/dict/dict.txt").toUri());
 
 
-
-
-
         //初学者，关注的是client端的代码梳理：因为把这块写明白了，其实你也就真的知道这个作业的开发原理；
 
         //maptask
         //input
-
         TextInputFormat.addInputPath(job,new Path(other[0]));
 
         Path outPath = new Path(other[1]);
 
         if(outPath.getFileSystem(conf).exists(outPath))  outPath.getFileSystem(conf).delete(outPath,true);
         TextOutputFormat.setOutputPath(job,outPath);
-
 
         //key
         //map
@@ -60,9 +55,6 @@ public class MyTopN {
         job.setSortComparatorClass(TSortComparator.class);
         //combine
 //        job.setCombinerClass();
-
-
-
 
         //reducetask
         //groupingComparator

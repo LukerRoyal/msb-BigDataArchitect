@@ -297,6 +297,7 @@ public abstract class TransformerBaseRunner implements Tool {
         scan.setStopRow(Bytes.toBytes("" + endDate));
 
         scan.setAttribute(Scan.SCAN_ATTRIBUTES_TABLE_NAME, Bytes.toBytes(EventLogConstants.HBASE_NAME_EVENT_LOGS));
+        //设置过滤器集合
         Filter filter = this.fetchHbaseFilter();
         if (filter != null) {
             scan.setFilter(filter);

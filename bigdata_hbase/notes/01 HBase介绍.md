@@ -4,7 +4,7 @@
 
 ##### 		（1）关系型数据库
 
-![关系型数据库](https://github.com/msbbigdata/hbase/blob/master/image/关系型数据库.png)
+![关系型数据库](https://github.com/msbbigdata/hbase/blob/master/image/关系型数据库.png?raw=true)
 
 ​				关系型数据库最典型的数据机构是表，由二维表及其之间的联系所组成的一个数据组织
 
@@ -26,7 +26,7 @@
 
 ##### 		（2）非关系型数据库
 
-![非关系型数据库](https://github.com/msbbigdata/hbase/blob/master/image/非关系型数据库.png)
+![非关系型数据库](https://github.com/msbbigdata/hbase/blob/master/image/非关系型数据库.png?raw=true)
 
 ​				非关系型数据库严格上不是一种数据库，应该是一种数据结构化存储方法的集合，可以是文档或键值对
 
@@ -64,7 +64,7 @@
 
 ### 3、HBase数据模型
 
-![hbase数据模型](https://github.com/msbbigdata/hbase/blob/master/image/hbase数据模型.png)
+![hbase数据模型](https://github.com/msbbigdata/hbase/blob/master/image/hbase数据模型.png?raw=true)
 
 ##### 			(1)rowkey
 
@@ -107,7 +107,7 @@
 
 ### 4、HBase架构
 
-![hbase架构图](https://github.com/msbbigdata/hbase/blob/master/image/hbase架构图.png)
+![hbase架构图](https://github.com/msbbigdata/hbase/blob/master/image/hbase架构图.png?raw=true)
 
 #### 	角色介绍：
 
@@ -171,7 +171,7 @@
 
 ​			3、每个Strore又由一个memStore和0至多个StoreFile组成。如图：StoreFile以HFile格式保存在HDFS上。
 
-​			![hbase架构图3](https://github.com/msbbigdata/hbase/blob/master/image/hbase架构图3.png)
+​			![hbase架构图3](https://github.com/msbbigdata/hbase/blob/master/image/hbase架构图3.png?raw=true)
 
 ### 5、HBase读写流程
 

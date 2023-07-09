@@ -14,11 +14,12 @@
 
 ​		在网站 http://code.google.com/p/protobuf/downloads/list上可以下载 Protobuf 的源代码。然后解压编译安装便可以使用它了。
 
-```
+```sql
 安装步骤如下所示：
  tar -xzf protobuf-2.1.0.tar.gz 
  cd protobuf-2.1.0 
  ./configure --prefix=$INSTALL_DIR 
+ yum groupinstall "Development  tools" 
  make 
  make check 
  make install
@@ -169,7 +170,7 @@ Str，这是一个字符串
 
 图 1. 性能测试结果
 
-![pb1](https://github.com/msbbigdata/hbase/blob/master/image/pb1.png)
+![pb1](../image/pb1.png)
 
 Total Time 指一个对象操作的整个时间，包括创建对象，将对象序列化为内存中的字节序列，然后再反序列化的整个过程。从测试结果可以看到 Protobuf 的成绩很好，感兴趣的读者可以自行到网站 http://code.google.com/p/thrift-protobuf-compare/wiki/Benchmarking上了解更详细的测试结果。
 
@@ -203,7 +204,7 @@ Total Time 指一个对象操作的整个时间，包括创建对象，将对象
 
 ​		代码清单 4 给出一个嵌套 Message 的例子。
 
-```C
+```java
 //清单 4. 嵌套 Message 的例子
  message Person { 
   required string name = 1; 
@@ -230,7 +231,7 @@ Total Time 指一个对象操作的整个时间，包括创建对象，将对象
 
 ​		比如下例：
 
-```c
+```java
 //清单 5. 代码
  import common.header; 
  message youMsg{ 
@@ -255,7 +256,7 @@ Total Time 指一个对象操作的整个时间，包括创建对象，将对象
 
 图 2. Importer 类
 
-![pb2](https://github.com/msbbigdata/hbase/blob/master/image/pb2.png)
+![pb2](../image/pb2.png)
 
 ​		Import 类对象中包含三个主要的对象，分别为处理错误的 MultiFileErrorCollector 类，定义 .proto 文件源目录的 SourceTree 类。
 
@@ -282,7 +283,7 @@ Total Time 指一个对象操作的整个时间，包括创建对象，将对象
 
 图 3. 各个 Compiler 类之间的关系
 
-![pb3](https://github.com/msbbigdata/hbase/blob/master/image/pb3.png)
+![pb3](../image/pb3.png)
 
 ​		类 FileDescriptor 表示一个编译后的 .proto 文件；类 Descriptor 对应该文件中的一个 Message；类 FieldDescriptor 描述一个 Message 中的一个具体 Field。
 
@@ -308,7 +309,7 @@ desc->pool()->FindFileByName (“id”);
 
 图 4. XML 编译器框图
 
-![pb4](https://github.com/msbbigdata/hbase/blob/master/image/pb4.png)
+![pb4](../image/pb4.png)
 
 ​		在 main() 函数内，生成 CommandLineInterface 的对象 cli，调用其 RegisterGenerator() 方法将新语言的后端代码生成器 yourG 对象注册给 cli 对象。然后调用 cli 的 Run() 方法即可。
 
@@ -316,7 +317,7 @@ desc->pool()->FindFileByName (“id”);
 
 图 5. 语法树
 
-![pb5](https://github.com/msbbigdata/hbase/blob/master/image/pb5.png)
+![pb5](../image/pb5.png)
 
 ​		其根节点为一个 FileDescriptor 对象（请参考“动态编译”一节），并作为输入参数被传入 yourG 的 Generator() 方法。在这个方法内，您可以遍历语法树，然后生成对应的您所需要的代码。简单说来，要想实现一个新的 compiler，您只需要写一个 main 函数，和一个实现了方法 Generator() 的派生类即可。
 
@@ -350,13 +351,13 @@ desc->pool()->FindFileByName (“id”);
 
 图 6. Varint 编码
 
-![pb6](https://github.com/msbbigdata/hbase/blob/master/image/pb6.png)
+![pb6](../image/pb6.png)
 
 ​		消息经过序列化后会成为一个二进制数据流，该流中的数据为一系列的 Key-Value 对。如下图所示：
 
 图 7. Message Buffer
 
-![pb7](https://github.com/msbbigdata/hbase/blob/master/image/pb7.png)
+![pb7](../image/pb7.png)
 
 ​		采用这种 Key-Pair 结构无需使用分隔符来分割不同的 Field。对于可选的 Field，如果消息中不存在该 field，那么在最终的 Message Buffer 中就没有该 field，这些特性都有助于节约消息本身的大小。
 
@@ -402,7 +403,7 @@ Key 的定义如下：
 
 图 8. ZigZag 编码
 
-![pb8](https://github.com/msbbigdata/hbase/blob/master/image/pb8.png)
+![pb8](../image/pb8.png)
 
 ​		使用 zigzag 编码，绝对值小的数字，无论正负都可以采用较少的 byte 来表示，充分利用了 Varint 这种技术。
 
@@ -447,6 +448,11 @@ Key 的定义如下：
 
 图 9. 解包流程图
 
-![pb9](https://github.com/msbbigdata/hbase/blob/master/image/pb9.png)
+![pb9](../image/pb9.png)
 
 ​		整个解析过程需要 Protobuf 本身的框架代码和由 Protobuf 编译器生成的代码共同完成。Protobuf 提供了基类 Message 以及 Message_lite 作为通用的 Framework，，CodedInputStream 类，WireFormatLite 类等提供了对二进制数据的 decode 功能，从 5.1 节的分析来看，Protobuf 的解码可以通过几个简单的数学运算完成，无需复杂的词法语法分析，因此 ReadTag() 等方法都非常快。 在这个调用路径上的其他类和方法都非常简单，感兴趣的读者可以自行阅读。 相对于 XML 的解析过程，以上的流程图实在是非常简单吧？这也就是 Protobuf 效率高的第二个原因了。
+
+
+
+
+

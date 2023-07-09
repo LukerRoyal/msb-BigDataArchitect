@@ -108,7 +108,7 @@ object Lesson03_Collections {
     map02.put("c",22)
 
     println("--------------艺术-------------")
-
+    //数据结构里面，底层数组是不可变得，set、list 都是需要copy on write 的，所以，计算的中间状态也是有意义的
 
     val list = List(1,2,3,4,5,6)
 
@@ -150,16 +150,15 @@ object Lesson03_Collections {
 
     println("--------------艺术-再-升华------------")
 
-
-
     //基于迭代器的原码分析
 
     val iter: Iterator[String] = listStr.iterator  //什么是迭代器，为什么会有迭代器模式？  迭代器里不存数据！
 
     val iterFlatMap= iter.flatMap(  (x:String)=> x.split(" ") )
 //    iterFlatMap.foreach(println)
+//    println(iterFlatMap)
 
-    val iterMapList = iterFlatMap.map( (_,1) )
+    val iterMapList = iterFlatMap.map(  (_,1) )
 
     while(iterMapList.hasNext){
       val tuple: (String, Int) = iterMapList.next()
@@ -167,26 +166,11 @@ object Lesson03_Collections {
     }
 
 
-
 //    iterMapList.foreach(println)
 
     //1.listStr真正的数据集，有数据的
     //2.iter.flatMap  没有发生计算，返回了一个新的迭代器
 
-
-
-
-
-
-
-
-
-
   }
-
-
-
-
-
 
 }

@@ -1,30 +1,24 @@
 package com.msb.bigdata.scala
-
-
 //约等于  static  单例对象
 //static
 //单例  new    scala的编译器很人性化   让你人少写了很多代码
 object ooxx {
 
   //  private val xo:xxoo = new xxoo()
-  private val xo = new ooxx(11)
   //  Integer num = 0;
   //  var/val   var:变量  val常量 取代了final
   /* var a=3
    a=4
    val b=4
    b=5*/
-
-  private val name = "object:zhangsan"
-
-
+  private val name = "object111:zhangsan"
   println("ooxx....up")
+  private val xo = new ooxx(11)
 
   def main(args: Array[String]): Unit = {
-    println("hello from ooxx")
     xo.printMsg()
+    println("hello from ooxx")
   }
-
   println("ooxx....down")
 
 }
@@ -35,24 +29,21 @@ object ooxx {
 //只有在类名构造其中的参数可以设置成var，其他方法函数中的参数都是val类型的，且不允许设置成var类型
 class ooxx(sex: String) {
 
-
   var name = "class:zhangsan"
-
   def this(xname: Int) {
     //必须调用默认构造
     this("abc")
-
-
+    println("构造方法中..."+xname)
   }
 
   var a: Int = 3
-
   //  private val value = new ooxx()
 
   println(s"ooxx....up$a....")
 
   def printMsg(): Unit = {
-    println(s"sex: ${ooxx.name}")
+    println(s"sex1: ${ooxx.name}")
+    println(s"sex2: $sex")
   }
 
   println(s"ooxx....up${a + 4}")

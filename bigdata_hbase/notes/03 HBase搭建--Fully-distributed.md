@@ -89,3 +89,6 @@ cp /opt/bigdate/hbase-2.6.5/etc/hadoop/hdfs-site.xml /opt/bigdata/hbase-2.0.5/co
 ```
 
 12、在任意目录下运行hbase shell的命令，进入hbase的命令行进行相关操作。
+
+
+
