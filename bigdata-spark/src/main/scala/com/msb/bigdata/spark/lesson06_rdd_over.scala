@@ -18,7 +18,6 @@ object lesson06_rdd_over {
     val sc = new SparkContext(conf)
     sc.setLogLevel("ERROR")
 
-
     val data: RDD[String] = sc.parallelize(List(
       "hello world",
       "hello spark",
@@ -35,17 +34,6 @@ object lesson06_rdd_over {
     val res01: RDD[(String, Int)] = res.mapValues(x=>x*10)
     val res02: RDD[(String, Iterable[Int])] = res01.groupByKey()
     res02.foreach(println)
-
-
-
-
-
-
-
-
-
-
-
 
 
 //
@@ -112,8 +100,6 @@ object lesson06_rdd_over {
 
 
 
-
-
     //第四代
     //  用了groupByKey  容易OOM  取巧：用了spark 的RDD  sortByKey 排序  没有破坏多级shuffle的key的子集关系
 //    val sorted: RDD[(Int, Int, Int, Int)] = data.sortBy(t4=>(t4._1,t4._2,t4._4),false)
@@ -132,11 +118,7 @@ object lesson06_rdd_over {
 
 
 
-
-
-
-
-    //第二代
+//第二代
     //用了groupByKey  容易OOM  取巧：spark rdd  reduceByKey 的取 max间接达到去重  让自己的算子变动简单点
 //    val reduced: RDD[((Int, Int, Int), Int)] = data.map(t4=>((t4._1,t4._2,t4._3),t4._4)).reduceByKey((x:Int,y:Int)=>if(y>x) y else x )
 //    val maped: RDD[((Int, Int), (Int, Int))] = reduced.map(t2=>((t2._1._1,t2._1._2),(t2._1._3,t2._2)))
@@ -145,9 +127,8 @@ object lesson06_rdd_over {
 //
 
 
-
-
 //  第一代
+    //使用了HashMap
     //  用了groupByKey 容易OOM   且自己的算子实现了函数：去重、排序
 //    val grouped = data.map(t4=>((t4._1,t4._2),(t4._3,t4._4))).groupByKey()
 //    val res: RDD[((Int, Int), List[(Int, Int)])] = grouped.mapValues(arr => {
@@ -168,17 +149,5 @@ object lesson06_rdd_over {
 
 
 
-
-
-
-
-
   }
-
-
-
-
-
-
-
 }

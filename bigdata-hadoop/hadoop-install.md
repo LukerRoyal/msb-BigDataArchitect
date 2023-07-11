@@ -119,7 +119,7 @@ hadoop 2.6.5
 		export  JAVA_HOME=/usr/java/default
 		export PATH=$PATH:$JAVA_HOME/bin
 	source /etc/profile   |  .    /etc/profile
- 
+	 
 	ssh免密：  ssh  localhost  1,验证自己还没免密  2,被动生成了  /root/.ssh
 		ssh-keygen -t dsa -P '' -f ~/.ssh/id_dsa
 		cat ~/.ssh/id_dsa.pub >> ~/.ssh/authorized_keys
@@ -216,14 +216,14 @@ hadoop 2.6.5
 
 	hdfs dfs -put hadoop*.tar.gz  /user/root
 	cd  /var/bigdata/hadoop/local/dfs/data/current/BP-281147636-192.168.150.11-1560691854170/current/finalized/subdir0/subdir0
-		
+
 
 	for i in `seq 100000`;do  echo "hello hadoop $i"  >>  data.txt  ;done
 	hdfs dfs -D dfs.blocksize=1048576  -put  data.txt 
 	cd  /var/bigdata/hadoop/local/dfs/data/current/BP-281147636-192.168.150.11-1560691854170/current/finalized/subdir0/subdir0
 	检查data.txt被切割的块，他们数据什么样子
- 
------------------------------------------------------------------------------------------ 
+
+-----------------------------------------------------------------------------------------
 
 伪分布式：  在一个节点启动所有的角色： NN,DN,SNN
 完全分布式：
@@ -302,11 +302,11 @@ hadoop 2.6.5
 			scp -r ./bigdata/  node02:`pwd`
 			scp -r ./bigdata/  node03:`pwd`
 			scp -r ./bigdata/  node04:`pwd`
-
+	
 		格式化启动
 			hdfs namenode -format
 			start-dfs.sh
-			
+
 -----------------------------------------------------
 
 做减法：
@@ -318,6 +318,8 @@ hadoop 2.6.5
 
 -----------------------------------------------------
 
+## 第五课Hadoop集群搭建
+
 FULL  ->  HA:
 HA模式下：有一个问题，你的NN是2台？在某一时刻，谁是Active呢？client是只能连接Active
 
@@ -325,149 +327,256 @@ core-site.xml
 fs.defaultFs -> hdfs://node01:9000
 
 配置：
-	core-site.xml
-		<property>
-		  <name>fs.defaultFS</name>
-		  <value>hdfs://mycluster</value>
-		</property>
 
-		 <property>
-		   <name>ha.zookeeper.quorum</name>
-		   <value>node02:2181,node03:2181,node04:2181</value>
-		 </property>
+cd /opt/bigdata/hadoop-2.6.5/etc/hadoop
 
-	hdfs-site.xml
-		#以下是  一对多，逻辑到物理节点的映射
-		<property>
-		  <name>dfs.nameservices</name>
-		  <value>mycluster</value>
-		</property>
-		<property>
-		  <name>dfs.ha.namenodes.mycluster</name>
-		  <value>nn1,nn2</value>
-		</property>
-		<property>
-		  <name>dfs.namenode.rpc-address.mycluster.nn1</name>
-		  <value>node01:8020</value>
-		</property>
-		<property>
-		  <name>dfs.namenode.rpc-address.mycluster.nn2</name>
-		  <value>node02:8020</value>
-		</property>
-		<property>
-		  <name>dfs.namenode.http-address.mycluster.nn1</name>
-		  <value>node01:50070</value>
-		</property>
-		<property>
-		  <name>dfs.namenode.http-address.mycluster.nn2</name>
-		  <value>node02:50070</value>
-		</property>
+```xml
+vi  core-site.xml
 
-		#以下是JN在哪里启动，数据存那个磁盘
-		<property>
-		  <name>dfs.namenode.shared.edits.dir</name>
-		  <value>qjournal://node01:8485;node02:8485;node03:8485/mycluster</value>
-		</property>
-		<property>
-		  <name>dfs.journalnode.edits.dir</name>
-		  <value>/var/bigdata/hadoop/ha/dfs/jn</value>
-		</property>
-		
-		#HA角色切换的代理类和实现方法，我们用的ssh免密
-		<property>
-		  <name>dfs.client.failover.proxy.provider.mycluster</name>
-		  <value>org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider</value>
-		</property>
-		<property>
-		  <name>dfs.ha.fencing.methods</name>
-		  <value>sshfence</value>
-		</property>
-		<property>
-		  <name>dfs.ha.fencing.ssh.private-key-files</name>
-		  <value>/root/.ssh/id_dsa</value>
-		</property>
-		
-		#开启自动化： 启动zkfc
-		 <property>
-		   <name>dfs.ha.automatic-failover.enabled</name>
-		   <value>true</value>
-		 </property>
+#由物理地址，改成未来的nameserver
+
+	<property>
+		<name>fs.defaultFS</name> 
+		<value>hdfs://mycluster</value>
+	</property>	
+	<property>
+		<name>ha.zookeeper.quorum</name>
+		<value>node02:2181,node03:2181,node04:2181</value>
+	</property>
+
+vi  hdfs-site.xml
+	<property>
+	  <name>dfs.replication</name>
+	  <value>2</value>
+	</property>
+	<property>
+	  <name>dfs.namenode.name.dir</name>
+	  <value>/var/bigdata/hadoop/ha/dfs/name</value>
+	</property>
+	<property>
+	  <name>dfs.datanode.data.dir</name>
+	  <value>/var/bigdata/hadoop/ha/dfs/data</value>
+	</property>
+	
+	#以下是  一对多，逻辑到物理节点的映射
+	<property>
+	  <name>dfs.nameservices</name>
+	  <value>mycluster</value>
+	</property>
+	<property>
+     	<name>dfs.ha.nameservice.mycluster</name>
+     	<value>node01,node02,node03,node04</value>
+	</property>
+
+	<property>
+	  <name>dfs.ha.namenodes.mycluster</name>
+	  <value>nn1,nn2</value>
+	</property>
+	<property>
+	  <name>dfs.namenode.rpc-address.mycluster.nn1</name>
+	  <value>node01:8020</value>
+	</property>
+	<property>
+	  <name>dfs.namenode.rpc-address.mycluster.nn2</name>
+	  <value>node02:8020</value>
+	</property>
+	<property>
+	  <name>dfs.namenode.http-address.mycluster.nn1</name>
+	  <value>node01:50070</value>
+	</property>
+	<property>
+	  <name>dfs.namenode.http-address.mycluster.nn2</name>
+	  <value>node02:50070</value>
+	</property>
+
+	#以下是JN在哪里启动，数据存那个磁盘
+	<property>
+	  <name>dfs.namenode.shared.edits.dir</name>
+	  <value>qjournal://node01:8485;node02:8485;node03:8485/mycluster</value>
+	</property>
+	<property>
+	  <name>dfs.journalnode.edits.dir</name>
+	  <value>/var/bigdata/hadoop/ha/dfs/jn</value>
+	</property>
+	
+	#HA角色切换的代理类和实现方法，我们用的ssh免密
+	<property>
+	  <name>dfs.client.failover.proxy.provider.mycluster</name>
+	  <value>org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider</value>
+	</property>
+	<property>
+	  <name>dfs.ha.fencing.methods</name>
+	  <value>sshfence</value>
+	</property>
+	<property>
+	  <name>dfs.ha.fencing.ssh.private-key-files</name>
+	  <value>/root/.ssh/id_rsa</value>
+	</property>
+	
+	#开启自动化： 启动zkfc ,开启ha高可用的
+	 <property>
+	   <name>dfs.ha.automatic-failover.enabled</name>
+	   <value>true</value>
+	 </property>
+```
+
+```
+scp -r  core-site.xml hdfs-site.xml node01:`pwd`
+scp -r ./hadoop-2.6.5  node03:`pwd`
+scp -r ./zookeeper-3.4.6  node04:`pwd`
+```
+
+使用hdfs命令时报Unable to load native-hadoop library for your platform
+
+export LD_LIBRARY_PATH=$HADOOP_HOME/lib/native export  
+
+:$LD_LIBRARY_PATH
 
 
 
-流程：
-	基础设施
-		ssh免密：
-			1）启动start-dfs.sh脚本的机器需要将公钥分发给别的节点
-			2）在HA模式下，每一个NN身边会启动ZKFC，
-				ZKFC会用免密的方式控制自己和其他NN节点的NN状态
-	应用搭建
-		HA 依赖 ZK  搭建ZK集群
-		修改hadoop的配置文件，并集群同步
-	初始化启动
-		1）先启动JN   hadoop-daemon.sh start journalnode 
-		2）选择一个NN 做格式化：hdfs namenode -format   <只有第一次搭建做，以后不用做>
-		3)启动这个格式化的NN ，以备另外一台同步  hadoop-daemon.sh start namenode 
-		4)在另外一台机器中： hdfs namenode -bootstrapStandby
-		5)格式化zk：   hdfs zkfc  -formatZK     <只有第一次搭建做，以后不用做>
+以后用到yarn，也不用改了
+
+### 流程：
+
+​	基础设施
+​		ssh免密：
+​			1）启动start-dfs.sh脚本的机器需要将公钥分发给别的节点
+​			2）在HA模式下，每一个NN身边会启动ZKFC，
+​				ZKFC会用免密的方式控制自己和其他NN节点的NN状态
+​	应用搭建
+​		HA 依赖 ZK  搭建ZK集群
+​		修改hadoop的配置文件，并集群同步
+​	初始化启动
+​		1）先启动JN   hadoop-daemon.sh start journalnode 
+​		2）选择一个NN 做格式化：hdfs namenode -format   <只有第一次搭建做，以后不用做>
+​		3)启动这个格式化的NN ，以备另外一台同步  hadoop-daemon.sh start namenode 
+​		4)在另外一台机器中： hdfs namenode -bootstrapStandby
+​		5)格式化zk：   hdfs zkfc  -formatZK     <只有第一次搭建做，以后不用做>
+
 		6) start-dfs.sh
 	使用
 
-------实操：
-	1）停止之前的集群
-	2）免密：node01,node02
-		node02: 
-			cd ~/.ssh
-			ssh-keygen -t dsa -P '' -f ./id_dsa
-			cat id_dsa.pub >> authorized_keys
-			scp ./id_dsa.pub  node01:`pwd`/node02.pub
-		node01:
-			cd ~/.ssh
-			cat node02.pub >> authorized_keys
-	3)zookeeper 集群搭建  java语言开发  需要jdk  部署在2,3,4
-		node02:
-			tar xf zook....tar.gz
-			mv zoo...    /opt/bigdata
-			cd /opt/bigdata/zookeeper-3.4.6/conf
-			cp zoo_sample.cfg  zoo.cfg
-			vi zoo.cfg
-				datadir=/var/bigdata/hadoop/zk
-				server.1=node02:2888:3888
-				server.2=node03:2888:3888
-				server.3=node04:2888:3888
-			mkdir -p /var/bigdata/hadoop/zk
-			echo 1 >  /var/bigdata/hadoop/zk/myid 
-			vi /etc/profile
-				export ZOOKEEPER_HOME=/opt/bigdata/zookeeper-3.4.6
-				export PATH=$PATH:$JAVA_HOME/bin:$HADOOP_HOME/bin:$HADOOP_HOME/sbin:$ZOOKEEPER_HOME/bin
-			. /etc/profile
-			cd /opt/bigdata
-			scp -r ./zookeeper-3.4.6  node03:`pwd`
-			scp -r ./zookeeper-3.4.6  node04:`pwd`
-		node03:
-			mkdir /var/bigdata/hadoop/zk
-			echo 2 >  /var/bigdata/hadoop/zk/myid
-			*环境变量
-			. /etc/profile
-		node04:
-			mkdir /var/bigdata/hadoop/zk
-			echo 3 >  /var/bigdata/hadoop/zk/myid
-			*环境变量
-			. /etc/profile
+### ------实操：
 
-		node02~node04:
-			zkServer.sh start
+​	1）停止之前的集群
+​	2）免密：node01,node02
+​		node02: 
+​			cd ~/.ssh
+​			ssh-keygen -t dsa -P '' -f ./id_dsa
+​			cat id_dsa.pub >> authorized_keys
+​			scp ./id_dsa.pub  node01:`pwd`/node02.pub
+​		node01:
+​			cd ~/.ssh
+​			cat node02.pub >> authorized_keys
 
-	4）配置hadoop的core和hdfs
-	5）分发配置
-		给每一台都分发
-	6）初始化：
-		1）先启动JN   hadoop-daemon.sh start journalnode 
-		2）选择一个NN 做格式化：hdfs namenode -format   <只有第一次搭建做，以后不用做>
-		3)启动这个格式化的NN ，以备另外一台同步  hadoop-daemon.sh start namenode 
-		4)在另外一台机器中： hdfs namenode -bootstrapStandby
-		5)格式化zk：   hdfs zkfc  -formatZK     <只有第一次搭建做，以后不用做>
-		6) start-dfs.sh	
+#### 	zookeeper 集群搭建  java语言开发  需要jdk  部署在2,3,4
+
+​		**node02**:
+​			tar xf zook....tar.gz
+​			mv zoo...    /opt/bigdata
+​			cd /opt/bigdata/zoo....
+​			cd conf
+​			cp zoo_sample.cfg  zoo.cfg
+​			vi zoo.cfg
+​				datadir=/var/bigdata/hadoop/zk
+
+```
+server.1=node02:2888:3888
+server.2=node03:2888:3888
+server.3=node04:2888:3888
+```
+
+​			mkdir -p /var/bigdata/hadoop/zk
+​			echo 1 >  /var/bigdata/hadoop/zk/myid 
+​			vi /etc/profile
+​				export ZOOKEEPER_HOME=/opt/bigdata/zookeeper-3.4.6
+​				export PATH=$PATH:$JAVA_HOME/bin:$HADOOP_HOME/bin:$HADOOP_HOME/sbin:$ZOOKEEPER_HOME/bin
+​			. /etc/profile
+​			cd /opt/bigdata
+
+```
+scp -r ./zookeeper-3.4.6  node03:`pwd`
+scp -r ./zookeeper-3.4.6  node04:`pwd`
+```
+
+​		node03:
+​			mkdir -p /var/bigdata/hadoop/zk
+​			echo 2 >  /var/bigdata/hadoop/zk/myid
+​			*环境变量
+​			. /etc/profile
+​		node04:
+​			mkdir /var/bigdata/hadoop/zk
+​			echo 3 >  /var/bigdata/hadoop/zk/myid
+​			*环境变量
+​			. /etc/profile
+
+node02~node04: **启动验证选主**leader
+
+**zkServer.sh start**
+
+**zkServer.sh stop**
+
+​	先在node02启动看看
+
+zkServer.sh status
+
+​	It is probably not running
+
+​	因为只启动了一个，没办法选主，启动两台才会选主，（ **N/2 +1** ），就是选主的节点数
+
+
+
+4）配置hadoop的core和hdfs
+5）分发配置
+	给每一台都分发
+
+​	4台都要配置环境变量
+
+vi /etc/profile
+	export JAVA_HOME=/usr/java/jdk1.8.0_371
+	export HADOOP_HOME=/opt/bigdata/hadoop-2.6.5
+	export PATH=$PATH:$JAVA_HOME/bin:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
+source /etc/profile
+
+```
+scp -r ./hadoop-2.6.5  node02:`pwd`
+scp -r ./hadoop-2.6.5  node03:`pwd`
+scp -r ./hadoop-2.6.5  node04:`pwd`
+```
+
+
+
+6）初始化：
+	1）先启动JN ,这个启动node01~03，三台，启动完之后在第三台上面打开日志，准备后续的格式化操作
+		**hadoop-daemon.sh start journalnode**
+		tail -f /opt/bigdata/hadoop-2.6.5/logs/hadoop-root-journalnode-centos-3.log
+
+​	2）选择一个NN 做格式化： <**只有第一次搭建做，以后不用做**> 新启动第一次不格式化启动不了
+**hdfs namenode -format**
+cat /var/bigdata/hadoop/ha/dfs/name/current/VERSION
+cat /var/bigdata/hadoop/ha/dfs/jn/mycluster/current/VERSION
+对比两个的clusterID是不是一样的
+
+​	3)启动这个node01格式化的NN ，以备另外一台同步
+​		**hadoop-daemon.sh start namenode**
+
+​	4)在另外一台机器中： **hdfs namenode -bootstrapStandby**
+​		同步node01之后，看Cluster ID: CID-bf7c7bcb-86cf-45c7-8c66-9b9d2e8d8f19，也是这个
+
+如果不行，就强制置顶active的nn
+
+**hdfs haadmin -transitionToActive --forcemanual nn1**
+
+HDFS_DATANODE_USER=root
+HADOOP_SECURE_DN_USER=hdfs
+HDFS_NAMENODE_USER=root
+
+​	5)格式化zk：在node01上面操作   **hdfs zkfc  -formatZK**     <只有第一次搭建做，以后不用做>
+
+ 6. 在node01：**start-dfs.sh**
+
+    全部停止：**stop-dfs.sh**
+
 使用验证：
 	1）去看jn的日志和目录变化：
 	2）node04
@@ -484,8 +593,34 @@ fs.defaultFs -> hdfs://node01:9000
 			如果恢复1上的网卡   ifconfig eth0 up  
 			最终 2编程active
 
+### `ha高可用模式下架构图-便于回忆理解`
+
+#### 启动顺序
+
+|        | 第一步：zk        | 第二步：JN                         | 第三步：NM                                                   | 第四步：hdfs                                 | 停止服务                                                     |
+| ------ | ----------------- | ---------------------------------- | ------------------------------------------------------------ | -------------------------------------------- | ------------------------------------------------------------ |
+| node01 |                   | hadoop-daemon.sh start journalnode | hadoop-daemon.sh start namenode                              | start-dfs.sh<br />http://node01:50070/<br /> | stop-all.sh<br />                                            |
+| node02 | zkServer.sh start | hadoop-daemon.sh start journalnode | hadoop-daemon.sh start namenode<br />hdfs namenode -bootstrapStandby<br />hadoop-daemon.sh start datanode |                                              | stop-all.sh<br />hadoop-daemon.sh stop datanode<br />zkServer.sh stop |
+|        | zkServer.sh start | hadoop-daemon.sh start journalnode | hadoop-daemon.sh start datanode                              |                                              | stop-all.sh<br />hadoop-daemon.sh stop datanode<br />zkServer.sh stop |
+|        | zkServer.sh start |                                    | hadoop-daemon.sh start datanode                              |                                              | stop-all.sh<br />hadoop-daemon.sh stop datanode<br />zkServer.sh stop |
+
+|                 | Node01 | Node02 | Node03 | Node04 |
+| --------------- | ------ | ------ | ------ | ------ |
+| Namenode        | 1      | 1      |        |        |
+| Journalnode     | 1      | 1      | 1      |        |
+| Datanode        |        | 1      | 1      | 1      |
+| Zkfc            | 1      | 1      |        |        |
+| zookeeper       | 1      | 1      | 1      |        |
+| resourcemanager | 1      |        | 1      | 1      |
+| nodemanager     |        | 1      | 1      | 1      |
+| Hiveserver2     |        |        | 1      |        |
+| beeline         |        |        |        | 1      |
+
+![image-20230710100857354](assets/hadoop-install/media/image-20230710100857354.png)
 
 ==================================================================================
+
+## 第六课：
 
 1，hdfs 的权限
 2，hdfs java api idea
@@ -515,7 +650,7 @@ hdfs是一个文件系统
 
 	实操：
 	切换我们用root搭建的HDFS  用god这个用户来启动
-
+	
 	node01~node04:
 		*)stop-dfs.sh
 		1)添加用户：root
@@ -546,11 +681,11 @@ hdfs是一个文件系统
 			  <name>dfs.ha.fencing.ssh.private-key-files</name>
 			  <value>/home/god/.ssh/id_dsa</value>
 			</property>
-
+	
 			分发给node02~04
-                scp hdfs-site.xml node02：`pwd`
-                scp hdfs-site.xml node03：`pwd`
-                scp hdfs-site.xml node04：`pwd`
+	            scp hdfs-site.xml node02：`pwd`
+	            scp hdfs-site.xml node03：`pwd`
+	            scp hdfs-site.xml node04：`pwd`
 		5)node01
 		    god  :  start-dfs.sh
 
@@ -602,13 +737,13 @@ windows idea eclips  叫什么：  集成开发环境  ide 你不需要做太多
 		打包、测试、清除、构建项目目录。。。。
 		GAV定位。。。。
 		https://mvnrepository.com/
-
+	
 	hdfs的pom：
 		hadoop：（common，hdfs，yarn，mapreduce）
 
-
 ===================================================================
-第八课：
+
+## 第八课：
 
 学习方法。。。
 hdfs:
@@ -654,13 +789,13 @@ mapreduce：批量计算  流式计算
                     1，从hdfs中取回 【split清单】
                     2，根据自己收到的TaskTracker汇报的资源，最终确定每一个split对应的map应该去到哪一个节点，【确定清单】
                     3，未来，TaskTracker再心跳的时候会取回分配给白己的任务信息~！
-
+    
                 TaskTracker
                 1，在心跳取回任务后
                 2、从hdfs中下我jar,xml。。到本机
                 3、最终启动任务描述中的MapTask/ReduceTask（最终，代码在某一个节点被启动，是通过，cli上传，TaskTracker下载：
                     ：计算问数据移动的实现~！）
-
+    
                 问题： (不用担心，1.X之后就已经被淘汰了)
                     JobTracker 3个问题：
                         1，单点故障
@@ -670,7 +805,7 @@ mapreduce：批量计算  流式计算
                                 1，重复造轮子
                                 2，因为各点实现资源管理，但是他们部署在同一批硬件上，因为隔离，所以不能感知对方的使用
                                     so：资源争抢～
-
+    
                 hadoop2.x  出现了一个yarn
                     模型：
                         container容器 不是docker
@@ -686,7 +821,7 @@ mapreduce：批量计算  流式计算
                             负责整休资源的管理
                         NodeManager 从
                             向ResourceManager汇报心跳，提交白己的资源情況
-
+    
                     MR运行 MapReduce on yarn
                         1，MR-cli （切片清单/配置/jar/上传到HDFS）
                             访问ResourceManager申请AppMaster
@@ -697,7 +832,7 @@ mapreduce：批量计算  流式计算
                         6，MRAppMaster （曾经的Job Tracker阉割版不带资源管理）最终将任务Task发送给container（消息）
                         7, container会反射相应的Task类为对象，调用方法执行，其结果就是我们的业务逻辑代码的执行
                         8，计算框架都有Task失败重试的机制
-
+    
                     结论：
                         问题：
                             1、单点故障（曾经是全局的，Job Tracker挂了，整个计算层没有了调度，
@@ -710,7 +845,7 @@ mapreduce：批量计算  流式计算
                             3，集成了【资源管理和任务调度】，两者耦合
                                 因为yarn只是资源管理，不负责具体的任务调度
                                 是公立的，只要计算框架继承yarn的AppMaster，大家都可以使用一个统一视图的资源层~！！！
-
+    
                     总结感悟：
                         从1.x到2.x
                             Job Tracker是MR的常服务。。。
@@ -718,7 +853,8 @@ mapreduce：批量计算  流式计算
                             相对的：MR的cli，【调度】，任务，这些都是临时服务了。。
 
 ===================================================================
-第九课：yarn搭建
+
+## 第九课：yarn搭建
 
 1，最终去开发MR计算程序
 	*,HDFS和YARN  是俩概念  
@@ -730,12 +866,22 @@ mapreduce：批量计算  流式计算
 		RM
 		NM
 	搭建集群：
-			   NN	NN	JN	ZKFC	ZK	DN	RM	NM
-		node01	    *	*	 *
-		node02		*	*	 *	    *	 *		*
-		node03			*		    *	 *	 *	*
-		node04					    *	 *	 *	*
-	
+
+|                 | Node01 | Node02 | Node03 | Node04 |
+| --------------- | ------ | ------ | ------ | ------ |
+| Namenode        | 1      | 1      |        |        |
+| Journalnode     | 1      | 1      | 1      |        |
+| Datanode        |        | 1      | 1      | 1      |
+| Zkfc            | 1      | 1      |        |        |
+| zookeeper       |        | 1      | 1      | 1      |
+| resourcemanager |        |        | 1      | 1      |
+| nodemanager     |        | 1      | 1      | 1      |
+| Hiveserver2     |        |        | 1      |        |
+| beeline         |        |        |        | 1      |
+
+
+​	
+
 	hadoop	1.x		    2.x			3.x
 	hdfs:	no ha		ha(向前兼容，没有过多的改NN，二是通过新增了角色 zkfc-它只负责name node的选主和协调)
 	yarn	no yarn		yarn  （不是新增角色，而是直接在Resource Manager进程中增加了HA的模块）
@@ -762,12 +908,12 @@ mapreduce：批量计算  流式计算
 		   <name>yarn.resourcemanager.zk-address</name>
 		   <value>node02:2181,node03:2181,node04:2181</value>
 		 </property>
-
+	
 		 <property>
 		   <name>yarn.resourcemanager.cluster-id</name>
 		   <value>mashibing</value>
 		 </property>
-
+	
 		 <property>
 		   <name>yarn.resourcemanager.ha.rm-ids</name>
 		   <value>rm1,rm2</value>
@@ -794,8 +940,8 @@ mapreduce：批量计算  流式计算
 			scp mapred-site.xml yarn-site.xml    node04:`pwd`
 			vi slaves  //可以不用管，搭建hdfs时候已经改过了。。。
 			    node02
-                node03
-                node04
+	            node03
+	            node04
 			start-yarn.sh
 		node03~04:
 			yarn-daemon.sh start resourcemanager
@@ -883,7 +1029,7 @@ MR  程序的提交方式
 			splitSize = Math.max(minSize, Math.min(maxSize, blockSize));  //默认split大小等于block大小
 				切片split是一个窗口机制：（调大split改小，调小split改大）
 					如果我想得到一个比block大的split：
-
+	
 			if ((blkLocations[i].getOffset() <= offset < blkLocations[i].getOffset() + blkLocations[i].getLength()))
 			split：解耦 存储层和计算层
 				1，file
@@ -963,7 +1109,7 @@ MR  程序的提交方式
 										2，保底，取key这个类型自身的比较器
 							combiner ？reduce
 								minSpillsForCombine = 3
-
+	
 							SpillThread
 								sortAndSpill()
 									if (combinerRunner == null)
@@ -975,7 +1121,7 @@ MR  程序的提交方式
 					一条记录调用一次map
 		reduce:run:	while (context.nextKey())
 					一组数据调用一次reduce
-
+	
 		doc：
 			1，shuffle：  洗牌（相同的key被拉取到一个分区），拉取数据
 			2，sort：  整个MR框架中只有map端是无序到有序的过程，用的是快速排序
@@ -987,7 +1133,7 @@ MR  程序的提交方式
 					排序比较啥：年，月，温度，，且温度倒序
 					分组比较器：年，月
 			3，reduce：
-
+	
 		run：
 			rIter = shuffle。。//reduce拉取回属于自己的数据，并包装成迭代器~！真@迭代器
 				file(磁盘上)-> open -> readline -> hasNext() next()
@@ -1001,7 +1147,7 @@ MR  程序的提交方式
 						什么叫做排序比较器：返回值：-1,0,1
 						什么叫做分组比较器：返回值：布尔值，false/true
 						排序比较器可不可以做分组比较器：可以的
-
+	
 					mapTask				    reduceTask
 									        1，取用户自定义的分组比较器
 					1，用户定义的排序比较器		2，用户定义的排序比较器
@@ -1027,7 +1173,7 @@ MR  程序的提交方式
 				nextKeyIsSame = false
 				iterable = ValueIterable
 				iterator = ValueIterator
-
+	
 				ValueIterable
 					iterator()
 						return iterator;
@@ -1036,10 +1182,10 @@ MR  程序的提交方式
 						return firstValue || nextKeyIsSame;
 					next()
 						nextKeyValue();
-
+	
 				nextKey()
 					nextKeyValue()
-
+	
 				nextKeyValue()
 					1，通过input取数据，对key和value赋值
 					2，返回布尔值
@@ -1048,10 +1194,10 @@ MR  程序的提交方式
 				
 				getCurrentKey()
 					return key
-
+	
 				getValues()
 					return iterable;
-
+	
 			用普通话描述它**：
 				reduceTask拉取回的数据被包装成一个迭代器
 				reduce方法被调用的时候，并没有把一组数据真的加载到内存
@@ -1065,9 +1211,9 @@ MR  程序的提交方式
 						规避了内存数据OOM的问题
 						且：之前不是说了框架是排序的
 							所以真假迭代器他们只需要协作，一次I/O就可以线性处理完每一组数据~！
-
-                map阶段做了快速排序
-                reduce阶段做了归并排序
+	
+	            map阶段做了快速排序
+	            reduce阶段做了归并排序
 
 
 
